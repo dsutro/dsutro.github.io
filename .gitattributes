@@ -1,0 +1,4 @@
+assets/music/audio/*.wav filter=lfs diff=lfs merge=lfs -text
+assets/music/vids/*.mp4 filter=lfs diff=lfs merge=lfs -text
+assets/music/vids/*.mov filter=lfs diff=lfs merge=lfs -text
+assets/music/vids/*.MOV filter=lfs diff=lfs merge=lfs -text
