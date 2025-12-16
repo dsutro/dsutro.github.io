@@ -25,6 +25,11 @@
   <link href="../../css/style.css" rel="stylesheet">
   
   <style>
+    .service-box {
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      padding: 1.5rem;
+    }
     .waveform-container {
       margin-bottom: 2rem;
       padding: 1.5rem;
@@ -189,9 +194,6 @@
       <div class="row">
         <div class="col-md-3 mb-4">
           <div class="service-box">
-            <div class="service-ico">
-              <span class="ico-circle"><i class="ion-music-note"></i></span>
-            </div>
             <div class="service-content">
               <h2 class="s-title">Dylan Sutro</h2>
               <p class="s-description text-center">
@@ -205,9 +207,6 @@
         </div>
         <div class="col-md-3 mb-4">
           <div class="service-box">
-            <div class="service-ico">
-              <span class="ico-circle"><i class="ion-music-note"></i></span>
-            </div>
             <div class="service-content">
               <h2 class="s-title">Max Goldfield</h2>
               <p class="s-description text-center">
@@ -221,9 +220,6 @@
         </div>
         <div class="col-md-3 mb-4">
           <div class="service-box">
-            <div class="service-ico">
-              <span class="ico-circle"><i class="ion-music-note"></i></span>
-            </div>
             <div class="service-content">
               <h2 class="s-title">Micah Lyons</h2>
               <p class="s-description text-center">
@@ -237,9 +233,6 @@
         </div>
         <div class="col-md-3 mb-4">
           <div class="service-box">
-            <div class="service-ico">
-              <span class="ico-circle"><i class="ion-music-note"></i></span>
-            </div>
             <div class="service-content">
               <h2 class="s-title">Will Davies</h2>
               <p class="s-description text-center">
@@ -762,12 +755,23 @@
           }
 
           if (audio.paused) {
-            // Pause all other players first
+            // Pause all other players first and wait for them to fully pause
+            const pausePromises = [];
             Object.keys(audioPlayers).forEach(id => {
               if (id !== track.id) {
                 const otherPlayer = audioPlayers[id];
                 if (otherPlayer && otherPlayer.audio && !otherPlayer.audio.paused) {
-                  otherPlayer.audio.pause();
+                  // Create a promise that resolves when the audio is paused
+                  const pausePromise = new Promise((resolve) => {
+                    const handlePause = () => {
+                      otherPlayer.audio.removeEventListener('pause', handlePause);
+                      resolve();
+                    };
+                    otherPlayer.audio.addEventListener('pause', handlePause);
+                    otherPlayer.audio.pause();
+                  });
+                  pausePromises.push(pausePromise);
+                  
                   otherPlayer.isPlaying = false;
                   const otherBtn = document.getElementById(`play-pause-${id}`);
                   if (otherBtn) {
@@ -781,6 +785,12 @@
               }
             });
 
+            // Wait for all other players to pause before starting this one
+            await Promise.all(pausePromises);
+
+            // Small delay to ensure audio state is settled
+            await new Promise(resolve => setTimeout(resolve, 50));
+
             // Ensure source is connected (in case it wasn't created properly)
             if (!source) {
               try {
@@ -793,10 +803,30 @@
               }
             }
 
-            await audio.play();
-            isPlaying = true;
-            playPauseBtn.classList.add('playing');
-            drawAnimatedWaveform();
+            // Play the audio and handle the promise properly
+            const playPromise = audio.play();
+            if (playPromise !== undefined) {
+              playPromise
+                .then(() => {
+                  isPlaying = true;
+                  playPauseBtn.classList.add('playing');
+                  drawAnimatedWaveform();
+                })
+                .catch(err => {
+                  // Handle play interruption gracefully
+                  if (err.name !== 'AbortError' && err.name !== 'NotAllowedError') {
+                    console.error('Error playing audio for', track.id, ':', err);
+                  }
+                  // Reset state if play failed
+                  isPlaying = false;
+                  playPauseBtn.classList.remove('playing');
+                });
+            } else {
+              // Fallback for browsers that don't return a promise
+              isPlaying = true;
+              playPauseBtn.classList.add('playing');
+              drawAnimatedWaveform();
+            }
           } else {
             audio.pause();
             isPlaying = false;
@@ -808,8 +838,13 @@
             drawStaticWaveform();
           }
         } catch (err) {
-          console.error('Error playing audio for', track.id, ':', err);
-          alert('Error playing audio: ' + err.message);
+          // Only show error if it's not an interruption error
+          if (err.name !== 'AbortError') {
+            console.error('Error playing audio for', track.id, ':', err);
+          }
+          // Reset state on error
+          isPlaying = false;
+          playPauseBtn.classList.remove('playing');
         }
       });
 
