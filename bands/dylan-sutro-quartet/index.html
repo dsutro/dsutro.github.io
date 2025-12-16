@@ -804,28 +804,31 @@
             }
 
             // Play the audio and handle the promise properly
-            const playPromise = audio.play();
-            if (playPromise !== undefined) {
-              playPromise
-                .then(() => {
-                  isPlaying = true;
-                  playPauseBtn.classList.add('playing');
-                  drawAnimatedWaveform();
-                })
-                .catch(err => {
-                  // Handle play interruption gracefully
-                  if (err.name !== 'AbortError' && err.name !== 'NotAllowedError') {
-                    console.error('Error playing audio for', track.id, ':', err);
+            try {
+              const playPromise = audio.play();
+              if (playPromise !== undefined) {
+                await playPromise.catch(err => {
+                  // Silently handle interruption errors - they're expected when switching tracks
+                  if (err.name === 'AbortError' || err.name === 'NotAllowedError') {
+                    return; // Don't log or alert for expected errors
                   }
-                  // Reset state if play failed
-                  isPlaying = false;
-                  playPauseBtn.classList.remove('playing');
+                  // Only log unexpected errors
+                  console.error('Error playing audio for', track.id, ':', err);
+                  throw err; // Re-throw to be caught by outer try-catch
                 });
-            } else {
-              // Fallback for browsers that don't return a promise
+              }
+              // Only set playing state if we successfully started playing
               isPlaying = true;
               playPauseBtn.classList.add('playing');
               drawAnimatedWaveform();
+            } catch (err) {
+              // Handle any remaining errors gracefully
+              if (err.name !== 'AbortError' && err.name !== 'NotAllowedError') {
+                console.error('Error playing audio for', track.id, ':', err);
+              }
+              // Reset state on error
+              isPlaying = false;
+              playPauseBtn.classList.remove('playing');
             }
           } else {
             audio.pause();
