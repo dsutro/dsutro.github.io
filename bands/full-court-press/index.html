@@ -216,32 +216,32 @@
             <div class="row mt-4">
               <div class="col-md-6 mb-4">
                 <h5 class="title-left">Fern Gully Minor Blues 1</h5>
-                <video controls class="img-fluid" style="width: 100%;">
-                  <source src="../../assets/music/vids/FCP_fern_gully_minor_blues_1.mov" type="video/quicktime">
-                  <source src="../../assets/music/vids/FCP_fern_gully_minor_blues_1.mov" type="video/mp4">
+                <video controls class="img-fluid" style="width: 100%;" data-video="FCP_fern_gully_minor_blues_1">
+                  <source src="" data-src="FCP_fern_gully_minor_blues_1" type="video/quicktime">
+                  <source src="" data-src="FCP_fern_gully_minor_blues_1" type="video/mp4">
                   Your browser does not support the video tag.
                 </video>
               </div>
               <div class="col-md-6 mb-4">
                 <h5 class="title-left">Fern Gully Minor Blues 2</h5>
-                <video controls class="img-fluid" style="width: 100%;">
-                  <source src="../../assets/music/vids/FCP_fern_gully_minor_blues_2.mov" type="video/quicktime">
-                  <source src="../../assets/music/vids/FCP_fern_gully_minor_blues_2.mov" type="video/mp4">
+                <video controls class="img-fluid" style="width: 100%;" data-video="FCP_fern_gully_minor_blues_2">
+                  <source src="" data-src="FCP_fern_gully_minor_blues_2" type="video/quicktime">
+                  <source src="" data-src="FCP_fern_gully_minor_blues_2" type="video/mp4">
                   Your browser does not support the video tag.
                 </video>
               </div>
               <div class="col-md-6 mb-4">
                 <h5 class="title-left">Redwood Records</h5>
-                <video controls class="img-fluid" style="width: 100%;">
-                  <source src="../../assets/music/vids/FCP_redwood_records.MOV" type="video/quicktime">
-                  <source src="../../assets/music/vids/FCP_redwood_records.MOV" type="video/mp4">
+                <video controls class="img-fluid" style="width: 100%;" data-video="FCP_redwood_records">
+                  <source src="" data-src="FCP_redwood_records" type="video/quicktime">
+                  <source src="" data-src="FCP_redwood_records" type="video/mp4">
                   Your browser does not support the video tag.
                 </video>
               </div>
               <div class="col-md-6 mb-4">
                 <h5 class="title-left">Full Court Press</h5>
-                <video controls class="img-fluid" style="width: 100%;">
-                  <source src="../../assets/music/vids/full_court_press.mp4" type="video/mp4">
+                <video controls class="img-fluid" style="width: 100%;" data-video="full_court_press">
+                  <source src="" data-src="full_court_press" type="video/mp4">
                   Your browser does not support the video tag.
                 </video>
               </div>
@@ -333,6 +333,36 @@
 
   <!-- Template Main Javascript File -->
   <script src="../../js/main.js"></script>
+
+  <!-- Media Configuration -->
+  <script src="../../js/media-config.js"></script>
+
+  <!-- Set media sources from configuration -->
+  <script>
+    // Set video source attributes from config
+    document.addEventListener('DOMContentLoaded', function() {
+      // Map of video data attributes to config keys
+      const videoMap = {
+        'FCP_fern_gully_minor_blues_1': 'FCP_fern_gully_minor_blues_1',
+        'FCP_fern_gully_minor_blues_2': 'FCP_fern_gully_minor_blues_2',
+        'FCP_redwood_records': 'FCP_redwood_records',
+        'full_court_press': 'full_court_press'
+      };
+
+      // Set video sources
+      Object.keys(videoMap).forEach(dataAttr => {
+        const videoElement = document.querySelector(`video[data-video="${dataAttr}"]`);
+        if (videoElement) {
+          const sources = videoElement.querySelectorAll(`source[data-src="${dataAttr}"]`);
+          const videoUrl = VIDEO_FILES[videoMap[dataAttr]];
+          sources.forEach(source => {
+            source.src = videoUrl;
+          });
+          videoElement.load();
+        }
+      });
+    });
+  </script>
 
 </body>
 </html>

@@ -280,7 +280,7 @@
                     <canvas id="waveform-carrot_cake" class="waveform-canvas"></canvas>
                   </div>
                   <audio id="audio-carrot_cake" preload="auto">
-                    <source src="../../assets/music/audio/carrot_cake.wav" type="audio/wav">
+                    <source src="" data-src="carrot_cake" type="audio/wav">
                   </audio>
                   <div class="waveform-controls">
                     <span id="time-carrot_cake">0:00 / 0:00</span>
@@ -298,7 +298,7 @@
                     <canvas id="waveform-days_of_wine_and_roses" class="waveform-canvas"></canvas>
                   </div>
                   <audio id="audio-days_of_wine_and_roses" preload="auto">
-                    <source src="../../assets/music/audio/days_of_wine_and_roses.wav" type="audio/wav">
+                    <source src="" data-src="days_of_wine_and_roses" type="audio/wav">
                   </audio>
                   <div class="waveform-controls">
                     <span id="time-days_of_wine_and_roses">0:00 / 0:00</span>
@@ -316,7 +316,7 @@
                     <canvas id="waveform-fee_fi_fo_fum" class="waveform-canvas"></canvas>
                   </div>
                   <audio id="audio-fee_fi_fo_fum" preload="auto">
-                    <source src="../../assets/music/audio/fee_fi_fo_fum.wav" type="audio/wav">
+                    <source src="" data-src="fee_fi_fo_fum" type="audio/wav">
                   </audio>
                   <div class="waveform-controls">
                     <span id="time-fee_fi_fo_fum">0:00 / 0:00</span>
@@ -334,7 +334,7 @@
                     <canvas id="waveform-liams_house" class="waveform-canvas"></canvas>
                   </div>
                   <audio id="audio-liams_house" preload="auto">
-                    <source src="../../assets/music/audio/liams_house.wav" type="audio/wav">
+                    <source src="" data-src="liams_house" type="audio/wav">
                   </audio>
                   <div class="waveform-controls">
                     <span id="time-liams_house">0:00 / 0:00</span>
@@ -352,7 +352,7 @@
                     <canvas id="waveform-ode_to_omar" class="waveform-canvas"></canvas>
                   </div>
                   <audio id="audio-ode_to_omar" preload="auto">
-                    <source src="../../assets/music/audio/ode_to_omar.wav" type="audio/wav">
+                    <source src="" data-src="ode_to_omar" type="audio/wav">
                   </audio>
                   <div class="waveform-controls">
                     <span id="time-ode_to_omar">0:00 / 0:00</span>
@@ -442,8 +442,8 @@
               <div class="col-md-6 mb-4">
                 <h5 class="title-left">Animated Poster</h5>
                 <div class="text-center">
-                  <video autoplay loop muted playsinline class="img-fluid" style="width: 100%; max-width: 600px;">
-                    <source src="../../assets/music/vids/DSQ_shanty_shack_animated.mp4" type="video/mp4">
+                  <video autoplay loop muted playsinline class="img-fluid" style="width: 100%; max-width: 600px;" data-video="DSQ_shanty_shack_animated">
+                    <source src="" data-src="DSQ_shanty_shack_animated" type="video/mp4">
                     Your browser does not support the video tag.
                   </video>
                 </div>
@@ -523,15 +523,47 @@
   <!-- Template Main Javascript File -->
   <script src="../../js/main.js"></script>
 
+  <!-- Media Configuration -->
+  <script src="../../js/media-config.js"></script>
+
+  <!-- Set media sources from configuration -->
+  <script>
+    // Set audio source attributes from config
+    document.addEventListener('DOMContentLoaded', function() {
+      // Set audio sources
+      Object.keys(AUDIO_FILES).forEach(key => {
+        const audioElement = document.getElementById(`audio-${key}`);
+        if (audioElement) {
+          const source = audioElement.querySelector('source[data-src]');
+          if (source) {
+            source.src = AUDIO_FILES[key];
+            // Reload audio element to pick up new source
+            audioElement.load();
+          }
+        }
+      });
+
+      // Set video sources
+      const videoElement = document.querySelector('video[data-video="DSQ_shanty_shack_animated"]');
+      if (videoElement) {
+        const source = videoElement.querySelector('source[data-src="DSQ_shanty_shack_animated"]');
+        if (source) {
+          source.src = VIDEO_FILES.DSQ_shanty_shack_animated;
+          videoElement.load();
+        }
+      }
+    });
+  </script>
+
   <!-- Custom Waveform Audio Players using Web Audio API -->
   <script>
-    // Audio files configuration
+    // Audio files configuration - uses media-config.js
     const audioFiles = [
-      { id: 'carrot_cake', title: 'Carrot Cake', file: '../../assets/music/audio/carrot_cake.wav' },
-      { id: 'days_of_wine_and_roses', title: 'Days of Wine and Roses', file: '../../assets/music/audio/days_of_wine_and_roses.wav' },
-      { id: 'fee_fi_fo_fum', title: 'Fee Fi Fo Fum', file: '../../assets/music/audio/fee_fi_fo_fum.wav' },
-      { id: 'liams_house', title: "Liam's House", file: '../../assets/music/audio/liams_house.wav' },
-      { id: 'ode_to_omar', title: 'Ode to Omar', file: '../../assets/music/audio/ode_to_omar.wav' }
+      { id: 'carrot_cake', title: 'Carrot Cake', file: AUDIO_FILES.carrot_cake },
+      { id: 'days_of_wine_and_roses', title: 'Days of Wine and Roses', file: AUDIO_FILES.days_of_wine_and_roses },
+      { id: 'fee_fi_fo_fum', title: 'Fee Fi Fo Fum', file: AUDIO_FILES.fee_fi_fo_fum },
+      { id: 'liams_house', title: "Liam's House", file: AUDIO_FILES.liams_house },
+      { id: 'ode_to_omar', title: 'Ode to Omar', file: AUDIO_FILES.ode_to_omar }
     ];
 
     // Store audio players
